@@ -1,5 +1,5 @@
-export type TicketStatus = "todo" | "in_progress" | "done";
-export type TicketPriority = "low" | "medium" | "high";
+export type TicketStatus = 'todo' | 'in_progress' | 'done';
+export type TicketPriority = 'low' | 'medium' | 'high';
 
 export type Ticket = {
   id: string;
