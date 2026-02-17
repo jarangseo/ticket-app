@@ -86,6 +86,44 @@ const TicketListPage = () => {
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)}
       />
+      <div>
+        <select
+          value={params.status}
+          onChange={(e) => updateParams({ status: e.target.value, page: '1' })}
+        >
+          <option value="all">Status: All</option>
+          <option value="todo">Todo</option>
+          <option value="in_progress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+
+        <select
+          value={params.priority}
+          onChange={(e) =>
+            updateParams({ priority: e.target.value, page: '1' })
+          }
+        >
+          <option value="all">Priority: All</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+
+        <select
+          value={params.tag}
+          onChange={(e) => updateParams({ tag: e.target.value, page: '1' })}
+        >
+          <option value="all">Tag: All</option>
+          <option value="frontend">frontend</option>
+          <option value="backend">backend</option>
+          <option value="infra">infra</option>
+          <option value="bug">bug</option>
+          <option value="ux">ux</option>
+          <option value="performance">performance</option>
+          <option value="docs">docs</option>
+          <option value="security">security</option>
+        </select>
+      </div>
       <h1>Tickets ({data.total})</h1>
       <ul>
         {data.items.map((ticket) => (
