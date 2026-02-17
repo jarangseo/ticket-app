@@ -3,10 +3,10 @@ import { http, HttpResponse, delay } from 'msw';
 import { tickets } from './data';
 import type { TicketPriority } from '../types/ticket';
 
-// 랜덤 딜레이 800~1500ms
+// Random delay 800~1500ms
 const randomDelay = () => delay(800 + Math.random() * 700);
 
-// 20% 확률로 에러
+// 20% chance of error
 const maybeError = () => {
   if (Math.random() < 0.2) {
     return HttpResponse.json(
@@ -18,7 +18,7 @@ const maybeError = () => {
 };
 
 export const handlers = [
-  // 목록 조회
+  // List
   http.get('/api/tickets', async ({ request }) => {
     await randomDelay();
     const error = maybeError();
@@ -38,7 +38,7 @@ export const handlers = [
 
     let filtered = [...tickets];
 
-    // 검색
+    // Search
     if (q) {
       const lower = q.toLowerCase();
       filtered = filtered.filter(
@@ -48,7 +48,7 @@ export const handlers = [
       );
     }
 
-    // 필터
+    // Filter
     if (status !== 'all') {
       filtered = filtered.filter((t) => t.status === status);
     }
@@ -59,7 +59,7 @@ export const handlers = [
       filtered = filtered.filter((t) => t.tags.includes(tag));
     }
 
-    // 정렬
+    // Sort
     const [field, order] = sort.split('_') as [string, string];
     filtered.sort((a, b) => {
       const aVal = field === 'updatedAt' ? a.updatedAt : a.createdAt;
@@ -69,7 +69,7 @@ export const handlers = [
         : aVal.localeCompare(bVal);
     });
 
-    // 페이지네이션
+    // Pagination
     const total = filtered.length;
     const start = (page - 1) * pageSize;
     const items = filtered.slice(start, start + pageSize);
@@ -77,7 +77,7 @@ export const handlers = [
     return HttpResponse.json({ items, page, pageSize, total });
   }),
 
-  // 상세 조회
+  // Detail
   http.get('/api/tickets/:id', async ({ params }) => {
     await randomDelay();
     const error = maybeError();
@@ -94,7 +94,7 @@ export const handlers = [
     return HttpResponse.json(ticket);
   }),
 
-  // 생성
+  // Create
   http.post('/api/tickets', async ({ request }) => {
     await randomDelay();
     const error = maybeError();
@@ -117,7 +117,7 @@ export const handlers = [
     return HttpResponse.json(newTicket, { status: 201 });
   }),
 
-  // 수정
+  // Update
   http.patch('/api/tickets/:id', async ({ params, request }) => {
     await randomDelay();
     const error = maybeError();
@@ -141,7 +141,7 @@ export const handlers = [
     return HttpResponse.json(tickets[index]);
   }),
 
-  // 삭제
+  // Delete
   http.delete('/api/tickets/:id', async ({ params }) => {
     await randomDelay();
     const error = maybeError();

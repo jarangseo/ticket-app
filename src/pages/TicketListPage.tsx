@@ -17,13 +17,13 @@ const DEFAULT_PARAMS = {
 const TicketListPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // 입력값은 로컬 상태 (타이핑할 때마다 바로 반영)
+  // Local state for input
   const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
 
-  // 디바운스된 값 (300ms 후 URL에 반영)
+  // Debounced value
   const debouncedQ = useDebounce(searchInput, 1000);
 
-  // URL에서 파라미터 읽기 (없으면 기본값)
+  // Read params from URL
   const params = {
     q: searchParams.get('q') || DEFAULT_PARAMS.q,
     status: searchParams.get('status') || DEFAULT_PARAMS.status,
@@ -34,14 +34,14 @@ const TicketListPage = () => {
     pageSize: searchParams.get('pageSize') || DEFAULT_PARAMS.pageSize,
   };
 
-  // URL 파라미터 업데이트 헬퍼 (setSearchParams 함수형으로 안정적 참조 유지)
+  // Helper to update URL params
   const updateParams = useCallback(
     (updates: Record<string, string>) => {
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
         Object.entries(updates).forEach(([key, value]) => {
           if (value === DEFAULT_PARAMS[key as keyof typeof DEFAULT_PARAMS]) {
-            next.delete(key); // 기본값이면 URL에서 제거 (깔끔하게)
+            next.delete(key); // Remove default values from URL
           } else {
             next.set(key, value);
           }
@@ -52,37 +52,37 @@ const TicketListPage = () => {
     [setSearchParams],
   );
 
-  // debouncedQ가 바뀌면 URL 업데이트
+  // Update URL when debounced value changes
   useEffect(() => {
-    updateParams({ q: debouncedQ, page: '1' }); // 검색하면 1페이지로
+    updateParams({ q: debouncedQ, page: '1' }); // Reset to page 1 on search
   }, [debouncedQ, updateParams]);
 
-  // queryKey에 params를 넣어서 파라미터 바뀔 때마다 자동 refetch
+  // Auto refetch when params change
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['tickets', params],
     queryFn: () => fetchTickets(params),
   });
 
-  if (isLoading) return <div>로딩 중...</div>;
+  if (isLoading) return <div>Loading...</div>;
 
   if (isError) {
     return (
       <div>
-        <p>에러: {error.message}</p>
-        <button onClick={() => refetch()}>재시도</button>
+        <p>Error: {error.message}</p>
+        <button onClick={() => refetch()}>Retry</button>
       </div>
     );
   }
 
   if (!data || data.items.length === 0) {
-    return <div>조건에 맞는 티켓이 없습니다.</div>;
+    return <div>No tickets found.</div>;
   }
 
   return (
     <div>
       <input
         type="text"
-        placeholder="검색어 입력..."
+        placeholder="Search..."
         value={searchInput}
         onChange={(e) => setSearchInput(e.target.value)}
       />
@@ -122,6 +122,15 @@ const TicketListPage = () => {
           <option value="performance">performance</option>
           <option value="docs">docs</option>
           <option value="security">security</option>
+        </select>
+        <select
+          value={params.sort}
+          onChange={(e) => updateParams({ sort: e.target.value, page: '1' })}
+        >
+          <option value="updatedAt_desc">Latest updated</option>
+          <option value="updatedAt_asc">Oldest updated</option>
+          <option value="createdAt_desc">Latest created</option>
+          <option value="createdAt_asc">Oldest created</option>
         </select>
       </div>
       <h1>Tickets ({data.total})</h1>
