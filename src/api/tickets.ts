@@ -1,4 +1,4 @@
-import type { Ticket } from '../types/ticket';
+import type { Ticket, TicketStatus, TicketPriority } from '../types/ticket';
 
 type TicketListResponse = {
   items: Ticket[];
@@ -39,4 +39,31 @@ export const deleteTicket = async (id: string): Promise<void> => {
     const error = await res.json();
     throw new Error(error.message || 'Failed to delete ticket');
   }
+};
+
+export type UpdateTicketBody = {
+  title?: string;
+  description?: string;
+  status?: TicketStatus;
+  priority?: TicketPriority;
+  assignee?: string | null;
+  tags?: string[];
+};
+
+export const updateTicket = async (
+  id: string,
+  body: UpdateTicketBody,
+): Promise<Ticket> => {
+  const res = await fetch(`/api/tickets/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || 'Failed to update ticket');
+  }
+
+  return res.json();
 };

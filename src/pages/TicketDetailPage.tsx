@@ -1,7 +1,13 @@
 import { useParams, useNavigate } from 'react-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { fetchTicket, deleteTicket } from '../api/tickets';
+import {
+  fetchTicket,
+  deleteTicket,
+  updateTicket,
+  type UpdateTicketBody,
+} from '../api/tickets';
+import TicketEditModal from '../components/TicketEditModal';
 
 const statusColor: Record<string, string> = {
   todo: 'bg-gray-100 text-gray-700',
@@ -20,6 +26,7 @@ const TicketDetailPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
 
   const {
     data: ticket,
@@ -38,6 +45,18 @@ const TicketDetailPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
       navigate('/tickets');
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (body: UpdateTicketBody) => updateTicket(id!, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ticket', id] });
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      setShowEdit(false);
+    },
+    onError: (err: Error) => {
+      alert(err.message);
     },
   });
 
@@ -74,7 +93,10 @@ const TicketDetailPage = () => {
           &larr; Back to list
         </button>
         <div className="flex gap-2">
-          <button className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+          <button
+            onClick={() => setShowEdit(true)}
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+          >
             Edit
           </button>
           <button
@@ -169,6 +191,14 @@ const TicketDetailPage = () => {
             </div>
           </div>
         </div>
+      )}
+      {showEdit && (
+        <TicketEditModal
+          ticket={ticket}
+          onSave={(body) => updateMutation.mutate(body)}
+          onClose={() => setShowEdit(false)}
+          isPending={updateMutation.isPending}
+        />
       )}
     </div>
   );
