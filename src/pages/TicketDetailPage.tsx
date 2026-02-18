@@ -8,6 +8,7 @@ import {
   type UpdateTicketBody,
 } from '../api/tickets';
 import TicketEditModal from '../components/TicketEditModal';
+import { useToastStore } from '../stores/toastStore';
 
 const statusColor: Record<string, string> = {
   todo: 'bg-gray-100 text-gray-700',
@@ -27,6 +28,7 @@ const TicketDetailPage = () => {
   const queryClient = useQueryClient();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const { addToast } = useToastStore();
 
   const {
     data: ticket,
@@ -44,7 +46,12 @@ const TicketDetailPage = () => {
     mutationFn: () => deleteTicket(id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
+      addToast('Ticket deleted', 'success');
       navigate('/tickets');
+    },
+    onError: (err: Error) => {
+      setShowDeleteConfirm(false);
+      addToast(err.message, 'error');
     },
   });
 
@@ -54,9 +61,10 @@ const TicketDetailPage = () => {
       queryClient.invalidateQueries({ queryKey: ['ticket', id] });
       queryClient.invalidateQueries({ queryKey: ['tickets'] });
       setShowEdit(false);
+      addToast('Ticket updated', 'success');
     },
     onError: (err: Error) => {
-      alert(err.message);
+      addToast(err.message, 'error');
     },
   });
 

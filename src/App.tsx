@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router';
 import TicketListPage from './pages/TicketListPage';
 import TicketDetailPage from './pages/TicketDetailPage';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import ToastContainer from './components/ToastContainer';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route path="/tickets/:id" element={<TicketDetailPage />} />
         <Route path="*" element={<Navigate to="/tickets" replace />} />
       </Routes>
+      <ToastContainer />
       <ReactQueryDevtools initialIsOpen={false} />
     </>
   );
