@@ -20,3 +20,23 @@ export const fetchTickets = async (
 
   return res.json();
 };
+
+export const fetchTicket = async (id: string): Promise<Ticket> => {
+  const res = await fetch(`/api/tickets/${id}`);
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || 'Failed to fetch ticket');
+  }
+
+  return res.json();
+};
+
+export const deleteTicket = async (id: string): Promise<void> => {
+  const res = await fetch(`/api/tickets/${id}`, { method: 'DELETE' });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || 'Failed to delete ticket');
+  }
+};

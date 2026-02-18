@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router';
+import { useSearchParams, useNavigate } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTickets } from '../api/tickets';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -15,6 +15,7 @@ const DEFAULT_PARAMS = {
 };
 
 const TicketListPage = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Local state for input
@@ -186,6 +187,7 @@ const TicketListPage = () => {
           <li
             key={ticket.id}
             className="flex cursor-pointer items-center justify-between px-4 py-3 hover:bg-gray-50"
+            onClick={() => navigate(`/tickets/${ticket.id}`)}
           >
             <div className="flex flex-col gap-1">
               <span className="font-medium">{ticket.title}</span>
