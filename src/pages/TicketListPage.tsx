@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTickets } from '../api/tickets';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDebounce } from '../hooks/useDebounce';
 
 const DEFAULT_PARAMS = {
@@ -52,11 +52,14 @@ const TicketListPage = () => {
     [setSearchParams],
   );
 
+  const prevDebouncedQ = useRef(debouncedQ);
+
   // Update URL when debounced value changes
   useEffect(() => {
-    updateParams({ q: debouncedQ, page: '1' }); // Reset to page 1 on search
+    if (prevDebouncedQ.current === debouncedQ) return; // Skip if not changed
+    prevDebouncedQ.current = debouncedQ;
+    updateParams({ q: debouncedQ, page: '1' });
   }, [debouncedQ, updateParams]);
-
   // Auto refetch when params change
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['tickets', params],
@@ -141,6 +144,39 @@ const TicketListPage = () => {
           </li>
         ))}
       </ul>
+      <div>
+        <button
+          disabled={params.page === '1'}
+          onClick={() =>
+            updateParams({ page: String(Number(params.page) - 1) })
+          }
+        >
+          Previous
+        </button>
+
+        <span>
+          Page {data.page} of {Math.ceil(data.total / data.pageSize)}
+        </span>
+
+        <button
+          disabled={data.page * data.pageSize >= data.total}
+          onClick={() =>
+            updateParams({ page: String(Number(params.page) + 1) })
+          }
+        >
+          Next
+        </button>
+
+        <select
+          value={params.pageSize}
+          onChange={(e) =>
+            updateParams({ pageSize: e.target.value, page: '1' })
+          }
+        >
+          <option value="20">20 / page</option>
+          <option value="50">50 / page</option>
+        </select>
+      </div>
     </div>
   );
 };
