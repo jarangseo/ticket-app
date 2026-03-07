@@ -16,16 +16,10 @@ const DEFAULT_PARAMS = {
 
 const TicketListPage = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
-  // Local state for input
-  const [searchInput, setSearchInput] = useState(searchParams.get('q') || '');
-
-  // Debounced value
-  const debouncedQ = useDebounce(searchInput, 1000);
-
-  // Read params from URL
-  const params = {
+  // Local filter state, initialized from URL query params
+  const [filters, setFilters] = useState(() => ({
     q: searchParams.get('q') || DEFAULT_PARAMS.q,
     status: searchParams.get('status') || DEFAULT_PARAMS.status,
     priority: searchParams.get('priority') || DEFAULT_PARAMS.priority,
@@ -33,31 +27,29 @@ const TicketListPage = () => {
     sort: searchParams.get('sort') || DEFAULT_PARAMS.sort,
     page: searchParams.get('page') || DEFAULT_PARAMS.page,
     pageSize: searchParams.get('pageSize') || DEFAULT_PARAMS.pageSize,
-  };
+  }));
 
-  // Helper to update URL params
+  // Local state for search input
+  const [searchInput, setSearchInput] = useState(filters.q);
+
+  // Debounced value
+  const debouncedQ = useDebounce(searchInput, 1000);
+
+  const params = filters;
+
+  // Helper to update local filter state (no URL change)
   const updateParams = useCallback(
     (updates: Record<string, string>) => {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        Object.entries(updates).forEach(([key, value]) => {
-          if (value === DEFAULT_PARAMS[key as keyof typeof DEFAULT_PARAMS]) {
-            next.delete(key); // Remove default values from URL
-          } else {
-            next.set(key, value);
-          }
-        });
-        return next;
-      });
+      setFilters((prev) => ({ ...prev, ...updates }));
     },
-    [setSearchParams],
+    [],
   );
 
   const prevDebouncedQ = useRef(debouncedQ);
 
-  // Update URL when debounced value changes
+  // Update filters when debounced search value changes
   useEffect(() => {
-    if (prevDebouncedQ.current === debouncedQ) return; // Skip if not changed
+    if (prevDebouncedQ.current === debouncedQ) return;
     prevDebouncedQ.current = debouncedQ;
     updateParams({ q: debouncedQ, page: '1' });
   }, [debouncedQ, updateParams]);
@@ -93,7 +85,10 @@ const TicketListPage = () => {
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 text-gray-500">
         <p>No tickets found.</p>
         <button
-          onClick={() => setSearchParams({})}
+          onClick={() => {
+            setFilters({ ...DEFAULT_PARAMS });
+            setSearchInput('');
+          }}
           className="rounded-md bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300"
         >
           Reset filters

@@ -3,8 +3,8 @@ import { http, HttpResponse, delay } from 'msw';
 import { tickets } from './data';
 import type { TicketPriority } from '../types/ticket';
 
-// Random delay 800~1500ms
-const randomDelay = () => delay(800 + Math.random() * 700);
+// Random delay 0~500ms
+const randomDelay = () => delay(Math.random() * 500);
 
 // 20% chance of error
 const maybeError = () => {
