@@ -176,6 +176,49 @@ const TicketListPage = () => {
         </select>
       </div>
 
+      {/* Batch action bar */}
+      <div className="mb-4 flex items-center gap-3 rounded-md bg-gray-50 px-4 py-2 border border-gray-200">
+        <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+          <input
+            type="checkbox"
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          Select all
+        </label>
+        <span className="text-sm text-gray-500">0 selected</span>
+        <div className="ml-auto flex items-center gap-2">
+          <select
+            disabled
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">Change status...</option>
+            <option value="todo">Todo</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+          <select
+            disabled
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <option value="">Add tag...</option>
+            <option value="frontend">frontend</option>
+            <option value="backend">backend</option>
+            <option value="infra">infra</option>
+            <option value="bug">bug</option>
+            <option value="ux">ux</option>
+            <option value="performance">performance</option>
+            <option value="docs">docs</option>
+            <option value="security">security</option>
+          </select>
+          <button
+            disabled
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Clear selection
+          </button>
+        </div>
+      </div>
+
       {/* Ticket list */}
       <ul className="divide-y divide-gray-200 rounded-md border border-gray-200">
         {data.items.map((ticket) => (
@@ -184,8 +227,14 @@ const TicketListPage = () => {
             className="flex cursor-pointer items-center justify-between px-4 py-3 hover:bg-gray-50"
             onClick={() => navigate(`/tickets/${ticket.id}`)}
           >
-            <div className="flex flex-col gap-1">
-              <span className="font-medium">{ticket.title}</span>
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                className="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <div className="flex flex-col gap-1">
+                <span className="font-medium">{ticket.title}</span>
               <div className="flex gap-2">
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColor[ticket.status]}`}
@@ -205,6 +254,7 @@ const TicketListPage = () => {
                     {tag}
                   </span>
                 ))}
+              </div>
               </div>
             </div>
             <span className="text-sm text-gray-400">
